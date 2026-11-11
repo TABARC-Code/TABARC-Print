@@ -1,0 +1,4 @@
+# Optional Google Drive and Microsoft OneDrive authorisation
+google-auth>=2.35,<4
+google-auth-oauthlib>=1.2,<2
+msal>=1.30,<3

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TABARC Print</title>
+<style>
+:root{color-scheme:dark;font:16px/1.5 system-ui,sans-serif;background:#10161e;color:#e4eaf1}
+body{max-width:760px;margin:4rem auto;padding:0 1.2rem} h1{font-size:2.1rem;letter-spacing:-.04em}
+small,p{color:#a9b9c9}section{background:#1b2632;border:1px solid #354354;border-radius:15px;padding:1.2rem;margin-top:1rem}
+label{display:block;margin:0 0 .4rem}input,select,button{font:inherit;padding:.65rem .8rem;border-radius:8px;border:1px solid #667789;background:#121b25;color:inherit;max-width:100%;box-sizing:border-box}
+input[type=password]{width:100%}input[type=file]{width:100%}button{background:#c5e2ff;color:#102135;border:0;cursor:pointer;font-weight:650}
+pre{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.5 ui-monospace,monospace}
+.job{display:flex;justify-content:space-between;gap:.75rem;align-items:center;border-top:1px solid #354354;padding:.7rem 0}
+.job:first-child{border:0}.job button{font-size:.85rem;padding:.35rem .6rem}.job span{overflow-wrap:anywhere}
+</style></head><body><h1>TABARC Print</h1><p>Send PDFs to your registered printers. Files are held until a connector accepts the job.</p>
+<section><label for="token">Client access token</label><input id="token" type="password" autocomplete="off"><p><small>Kept in this page only; it is not saved in browser storage.</small></p><button id="connect">Connect</button><p id="identity" aria-live="polite"></p></section>
+<section><label for="printer">Printer</label><select id="printer"><option value="">Connect first</option></select>
+<p><label for="document">PDF document (up to 20 MB)</label><input type="file" id="document" accept="application/pdf,.pdf"></p><button id="submit">Send to printer</button></section>
+<section><div style="display:flex;justify-content:space-between;gap:1em;align-items:center"><strong>Recent jobs</strong><button id="refresh">Refresh</button></div><div id="jobs">No jobs loaded.</div></section>
+<pre id="message" aria-live="polite"></pre>
+<script>
+const $=id=>document.getElementById(id);const msg=s=>{$('message').textContent=s};
+async function api(path,options={}){const r=await fetch(path,{...options,headers:{Authorization:'Bearer '+$('token').value,...options.headers}});let j=await r.json();if(!r.ok)throw Error(j.error||'Request failed');return j}
+async function printers(){try{const me=await api('/v1/me');$('identity').textContent='Signed in as '+me.id;const r=await api('/v1/printers');const p=$('printer');p.replaceChildren();for(const e of r.printers){const o=document.createElement('option');o.value=e.id;o.textContent=e.label+' ('+e.id+')';p.appendChild(o)}if(!r.printers.length)msg('No registered printers. Start the connector first.');else msg('Connected.')}catch(e){msg(e.message)}}
+async function jobs(){try{const r=await api('/v1/jobs'),root=$('jobs');root.replaceChildren();if(!r.jobs.length){root.textContent='No jobs yet.';return}for(const j of r.jobs){const line=document.createElement('div');line.className='job';const label=document.createElement('span');label.textContent=`${j.id.slice(0,8)} | ${j.printer_id} | ${j.state} | ${j.filename}${j.error?' | '+j.error:''}`;line.append(label);if(['queued','uncertain'].includes(j.state)){const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.onclick=async()=>{try{await api('/v1/jobs/'+encodeURIComponent(j.id),{method:'DELETE'});msg('Job cancelled: '+j.id.slice(0,8));await jobs()}catch(e){msg(e.message)}};line.append(cancel)}root.append(line)}}catch(e){msg(e.message)}}
+$('connect').onclick=async()=>{await printers();await jobs()};$('refresh').onclick=jobs;
+$('submit').onclick=async()=>{const f=$('document').files[0],p=$('printer').value;if(!f||!p)return msg('Choose a PDF and printer.');if(f.size>20*1024*1024)return msg('Maximum document size is 20 MB.');try{const r=await api('/v1/jobs',{method:'POST',headers:{'Content-Type':'application/pdf','X-Printer-ID':p,'X-Filename':encodeURIComponent(f.name)},body:f});msg('Queued: '+r.id);await jobs()}catch(e){msg(e.message)}};
+</script></body></html>

@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": "alice",
+      "token_sha256": "REPLACE_WITH_SHA256_FROM_A_NEW_PRIVATE_TOKEN",
+      "printers": ["office"]
+    },
+    {
+      "id": "bob",
+      "token_sha256": "REPLACE_WITH_A_DIFFERENT_SHA256",
+      "printers": ["workshop"]
+    }
+  ],
+  "agents": [
+    {
+      "id": "edge1",
+      "token_sha256": "REPLACE_WITH_ANOTHER_DIFFERENT_SHA256",
+      "printers": ["office"]
+    },
+    {
+      "id": "edge2",
+      "token_sha256": "REPLACE_WITH_FOURTH_DIFFERENT_SHA256",
+      "printers": ["workshop"]
+    }
+  ]
+}

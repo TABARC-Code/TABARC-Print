@@ -1,0 +1,23 @@
+# Local build artefacts and credentials
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.pem
+*.key
+*.p12
+*.pfx
+*token*.json
+*credential*.json
+*.log
+.env
+.env.*
+!.env.example

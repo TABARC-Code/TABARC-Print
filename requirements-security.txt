@@ -1,0 +1,3 @@
+# Required for all print jobs
+cryptography>=43,<48
+keyring>=25,<27

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tabarc-print"
+version = "1.0.1"
+description = "Local-first PDF printing with optional user-owned cloud gateways"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["cryptography>=43,<48", "keyring>=25,<27"]
+
+[project.optional-dependencies]
+security = []
+cloud = ["google-auth>=2.35,<4", "google-auth-oauthlib>=1.2,<2", "msal>=1.30,<3"]
+
+[project.scripts]
+tabarc-print-gateway = "tabarc_print.gateway:main"
+tabarc-print-cloud = "tabarc_print.cloud_gateway:main"
+tabarc-print-local = "tabarc_print.local:main"
+tabarc-print-desktop = "tabarc_print.desktop:main"
+tabarc-print-service = "tabarc_print.service:main"
+tabarc-print-tor = "tabarc_print.tor_transport:main"
+
+[tool.setuptools]
+packages = ["tabarc_print"]
+
+[tool.setuptools.package-data]
+tabarc_print = ["index.html"]
